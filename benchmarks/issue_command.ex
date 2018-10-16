@@ -1,4 +1,4 @@
-import Util.{Reset, Rename, Combinators}
+import Util.{Reset, Rename, Combinators, Concurrently}
 
 conn = conn!()
 
@@ -15,7 +15,8 @@ end
 Benchee.run(
   %{
     "sequentially" => fn list -> Enum.each(list, dispatch) end,
-    "concurrently" => fn list -> list |> Flow.from_enumerable() |> Flow.map(dispatch) |> Enum.to_list() end
+    "concurrently" => concurrent_map(dispatch),
+    "no-op" => concurrent_map(fn _ -> Process.sleep(5) end)
   },
   time: 10,
   inputs: inputs,

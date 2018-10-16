@@ -5,41 +5,34 @@
 mix do event_store.create, event_store.init
 ```
 
+## System
 
-## `issue_command.ex`
+```
+CPU Information: Intel(R) Core(TM) i7-5557U CPU @ 3.10GHz
+Number of Available Cores: 4
+Available memory: 16 GB
+Elixir 1.7.3
+Erlang 21.1.1
 
-Issues simple command, generating one event. Each command lands in different aggregate. Compares sequential vs concurrent versions.
-
-Scenarios differ by providing different `warmup` argument to `Benchee` and different `mix.exs` `erlc_options`.
+```
 
 ### With warmup:
 
-##### With input Big (10k) #####
-Name                   ips        average  deviation         median         99th %
-concurrently          3.11      321.73 ms    ±13.23%      315.77 ms      498.34 ms
-sequentially          1.24      808.52 ms    ±11.66%      767.64 ms     1292.19 ms
+```
+mix run benchmarks/issue_command_warmup.ex
+```
 
-Comparison:
-concurrently          3.11
-sequentially          1.24 - 2.51x slower
+##### With input Big (10k) #####
+Name                  ips        average  deviation         median         99th %
+with warmup          2.76      362.68 ms    ±14.60%      374.77 ms      552.73 ms
 
 ##### With input Middle (1k) #####
-Name                   ips        average  deviation         median         99th %
-concurrently         14.11       70.87 ms    ±14.93%       67.70 ms      112.10 ms
-sequentially         14.11       70.89 ms    ±23.93%       65.46 ms      142.41 ms
-
-Comparison:
-concurrently         14.11
-sequentially         14.11 - 1.00x slower
+Name                  ips        average  deviation         median         99th %
+with warmup         15.70       63.69 ms    ±11.40%       61.94 ms      103.34 ms
 
 ##### With input Small (100) #####
-Name                   ips        average  deviation         median         99th %
-sequentially        152.96        6.54 ms    ±37.52%        6.04 ms       12.30 ms
-concurrently        127.97        7.81 ms    ±29.80%        7.08 ms       16.17 ms
-
-Comparison:
-sequentially        152.96
-concurrently        127.97 - 1.20x slower
+Name                  ips        average  deviation         median         99th %
+with warmup        140.50        7.12 ms    ±24.55%        6.68 ms       12.72 ms
 
 ### Without warmup:
 
@@ -47,4 +40,30 @@ concurrently        127.97 - 1.20x slower
 mix run benchmarks/issue_command_no_warmup.ex
 ```
 
-### With compilation:
+##### With input Big (10k) #####
+Name                     ips        average  deviation         median         99th %
+without events          3.30      302.86 ms     ±6.91%      304.86 ms      352.54 ms
+with events             1.64      609.10 ms   ±322.52%      390.70 ms    16323.44 ms
+
+Comparison:
+without events          3.30
+with events             1.64 - 2.01x slower
+
+##### With input Middle (1k) #####
+Name                     ips        average  deviation         median         99th %
+without events         16.07       62.22 ms     ±2.98%       61.90 ms       69.53 ms
+with events            14.63       68.34 ms   ±205.37%       62.18 ms       72.28 ms
+
+Comparison:
+without events         16.07
+with events            14.63 - 1.10x slower
+
+##### With input Small (100) #####
+Name                     ips        average  deviation         median         99th %
+with events           148.13        6.75 ms    ±64.98%        6.56 ms        8.55 ms
+without events        148.01        6.76 ms    ±11.55%        6.61 ms        8.89 ms
+
+Comparison:
+with events           148.13
+without events        148.01 - 1.00x slower
+
